@@ -4,10 +4,19 @@
 </head>
 <body>
 
-<h1>ChatTHREAD</h1>
+<h1>ChatTHREAD {{.Name}}</h1>
+
+<form action="/api/chatthread/{{.Name}}" method="POST">
+    <div>
+        <textarea name="post" rows="10" cols="80"></textarea>
+    </div>
+    <div>
+        <input type="submit" value="Save">
+    </div>
+</form>
 
 <ul>
-    {{ range . }}
+    {{ range .Posts }}
         <li>{{.Text}}</li>
     {{ end }}
 </ul>

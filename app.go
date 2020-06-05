@@ -6,6 +6,8 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/chatthread/", chatThreadHandler)
+	log.Print("Running chatTHREAD app...")
+	http.HandleFunc("/chatthread/", chatThreadPresentationHandler)
+	http.HandleFunc("/api/chatthread/", chatThreadApiHandler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
