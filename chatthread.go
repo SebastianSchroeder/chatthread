@@ -6,65 +6,71 @@ import (
 	"regexp"
 )
 
-var templates = template.Must(template.ParseFiles("templates/chatThread.html"))
+var templates = template.Must(template.ParseFiles("templates/page.html"))
 
-type ChatThread struct {
+type PagePresentation struct {
 	Name  string
-	Posts []Post
+	Posts *[]Post
+}
+
+type Page struct {
+	Name string
 }
 
 type Post struct {
-	Text string
+	Text  string
+	Posts []Post
 }
 
-func renderPosts(w http.ResponseWriter, chatThread *ChatThread) {
-	err := templates.ExecuteTemplate(w, "chatThread.html", chatThread)
+var pages = map[Page][]Post{
+	Page{"foo"}: {
+		{Text: "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut "},
+		{Text: "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt"},
+	},
+	Page{"bar"}: {},
+}
+
+func renderPage(w http.ResponseWriter, page *PagePresentation) {
+	err := templates.ExecuteTemplate(w, "page.html", page)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
-var chatThreads = map[string]ChatThread{
-	"foo": {
-		Name: "foo",
-		Posts: []Post{
-			{"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed"},
-			{"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed"},
-		},
-	},
-}
+var presentationPath = regexp.MustCompile("^/page/([a-zA-Z0-9]+)/?$")
 
-var presentationPath = regexp.MustCompile("^/chatthread/([a-zA-Z0-9]+)$")
-
-func chatThreadPresentationHandler(w http.ResponseWriter, r *http.Request) {
+func pagePresentationHandler(w http.ResponseWriter, r *http.Request) {
 	m := presentationPath.FindStringSubmatch(r.URL.Path)
 	if m == nil {
 		http.NotFound(w, r)
 		return
 	}
-	chatThread, exists := chatThreads[m[1]]
+	page := Page{m[1]}
+	posts, exists := pages[page]
 	if !exists {
 		http.NotFound(w, r)
 		return
 	}
-	renderPosts(w, &chatThread)
+	pagePresentation := PagePresentation{page.Name, &posts}
+	renderPage(w, &pagePresentation)
 }
 
-var apiPath = regexp.MustCompile("^/api/chatthread/([a-zA-Z0-9]+)$")
+var apiPath = regexp.MustCompile("^/api/page/([a-zA-Z0-9]+)/?$")
 
-func chatThreadApiHandler(w http.ResponseWriter, r *http.Request) {
+func pageApiHandler(w http.ResponseWriter, r *http.Request) {
 	m := apiPath.FindStringSubmatch(r.URL.Path)
 	if m == nil {
 		http.NotFound(w, r)
 		return
 	}
-	chatThread, exists := chatThreads[m[1]]
+	page := Page{m[1]}
+	posts, exists := pages[page]
 	if !exists {
 		http.NotFound(w, r)
 		return
 	}
 	post := r.FormValue("post")
-	chatThread.Posts = append(chatThread.Posts, Post{post})
-	chatThreads[chatThread.Name] = chatThread
-	http.Redirect(w, r, "/chatthread/"+chatThread.Name, http.StatusFound)
+	posts = append(posts, Post{Text: post})
+	pages[page] = posts
+	http.Redirect(w, r, "/page/"+page.Name, http.StatusFound)
 }
