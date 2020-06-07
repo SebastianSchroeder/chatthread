@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"net/http"
 	"regexp"
+	"time"
 )
 
 var templates = template.Must(template.ParseFiles("templates/page.html"))
@@ -18,16 +19,27 @@ type Page struct {
 }
 
 type Post struct {
-	Text  string
-	Posts []Post
+	Text    string
+	Created time.Time
+	Replies []Post
 }
 
 var pages = map[Page][]Post{
-	Page{"foo"}: {
-		{Text: "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut "},
-		{Text: "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt"},
+	Page{
+		Name: "foo",
+	}: {
+		{
+			Text:    "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut ",
+			Created: time.Now(),
+		},
+		{
+			Text:    "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt",
+			Created: time.Now(),
+		},
 	},
-	Page{"bar"}: {},
+	Page{
+		Name: "bar",
+	}: {},
 }
 
 func renderPage(w http.ResponseWriter, page *PagePresentation) {
@@ -70,7 +82,7 @@ func pageApiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	post := r.FormValue("post")
-	posts = append(posts, Post{Text: post})
+	posts = append(posts, Post{Text: post, Created: time.Now()})
 	pages[page] = posts
 	http.Redirect(w, r, "/page/"+page.Name, http.StatusFound)
 }
