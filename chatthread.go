@@ -1,8 +1,10 @@
 package main
 
 import (
+	"github.com/google/uuid"
 	"html/template"
 	"net/http"
+	"net/url"
 	"regexp"
 	"time"
 )
@@ -10,36 +12,22 @@ import (
 var templates = template.Must(template.ParseFiles("templates/page.html"))
 
 type PagePresentation struct {
-	Name  string
+	Page  Page
 	Posts *[]Post
 }
 
 type Page struct {
-	Name string
+	PageId  uuid.UUID
+	Name    string
+	Url     url.URL
+	Created time.Time
 }
 
 type Post struct {
+	PostId  uuid.UUID
 	Text    string
 	Created time.Time
-	Replies []Post
-}
-
-var pages = map[Page][]Post{
-	Page{
-		Name: "foo",
-	}: {
-		{
-			Text:    "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut ",
-			Created: time.Now(),
-		},
-		{
-			Text:    "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt",
-			Created: time.Now(),
-		},
-	},
-	Page{
-		Name: "bar",
-	}: {},
+	Replies *[]Post
 }
 
 func renderPage(w http.ResponseWriter, page *PagePresentation) {
@@ -57,13 +45,13 @@ func pagePresentationHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	page := Page{m[1]}
-	posts, exists := pages[page]
+	pageName := m[1]
+	page, posts, exists := retrievePageByName(pageName, pages)
 	if !exists {
 		http.NotFound(w, r)
 		return
 	}
-	pagePresentation := PagePresentation{page.Name, &posts}
+	pagePresentation := PagePresentation{page, posts}
 	renderPage(w, &pagePresentation)
 }
 
@@ -75,14 +63,13 @@ func pageApiHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	page := Page{m[1]}
-	posts, exists := pages[page]
+	pageName := m[1]
+	page, _, exists := retrievePageByName(pageName, pages)
 	if !exists {
 		http.NotFound(w, r)
 		return
 	}
 	post := r.FormValue("post")
-	posts = append(posts, Post{Text: post, Created: time.Now()})
-	pages[page] = posts
+	addPost(pageName, Post{PostId: uuid.New(), Text: post, Created: time.Now()}, pages)
 	http.Redirect(w, r, "/page/"+page.Name, http.StatusFound)
 }
