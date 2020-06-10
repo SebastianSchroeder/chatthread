@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/google/uuid"
 	"html/template"
+	"log"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -55,10 +56,33 @@ func pagePresentationHandler(w http.ResponseWriter, r *http.Request) {
 	renderPage(w, &pagePresentation)
 }
 
-var apiPath = regexp.MustCompile("^/api/page/([a-zA-Z0-9]+)/?$")
+var pageApiPath = regexp.MustCompile("^/api/page/([a-zA-Z0-9\\-]+)/?$")
+var postApiPath = regexp.MustCompile("^/api/page/([a-zA-Z0-9\\-]+)/posts/?$")
+var replyApiPath = regexp.MustCompile("^/api/page/([a-zA-Z0-9\\-]+)/posts/([a-zA-Z0-9\\-]+)/replies/?$")
 
 func pageApiHandler(w http.ResponseWriter, r *http.Request) {
-	m := apiPath.FindStringSubmatch(r.URL.Path)
+	switch {
+	case pageApiPath.MatchString(r.URL.Path):
+		log.Print("matching page handler")
+		handlePageRequest(w, r)
+	case postApiPath.MatchString(r.URL.Path):
+		log.Print("matching post handler")
+		handlePostRequest(w, r)
+	case replyApiPath.MatchString(r.URL.Path):
+		log.Print("matching reply handler")
+		handleReplyRequest(w, r)
+	default:
+		log.Print("path ", r.URL.Path, " does not match")
+		http.NotFound(w, r)
+	}
+}
+
+func handlePageRequest(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func handlePostRequest(w http.ResponseWriter, r *http.Request) {
+	m := postApiPath.FindStringSubmatch(r.URL.Path)
 	if m == nil {
 		http.NotFound(w, r)
 		return
@@ -72,4 +96,8 @@ func pageApiHandler(w http.ResponseWriter, r *http.Request) {
 	post := r.FormValue("post")
 	addPost(pageName, Post{PostId: uuid.New(), Text: post, Created: time.Now()}, pages)
 	http.Redirect(w, r, "/page/"+page.Name, http.StatusFound)
+}
+
+func handleReplyRequest(w http.ResponseWriter, r *http.Request) {
+
 }
