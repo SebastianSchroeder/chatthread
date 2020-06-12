@@ -18,17 +18,27 @@ type PagePresentation struct {
 }
 
 type Page struct {
-	PageId  uuid.UUID
+	Id      uuid.UUID
 	Name    string
 	Url     url.URL
 	Created time.Time
 }
 
 type Post struct {
-	PostId  uuid.UUID
+	Id      uuid.UUID
+	PageId  uuid.UUID
 	Text    string
 	Created time.Time
 	Replies *[]Post
+}
+
+func createPost(text string, pageId uuid.UUID) Post {
+	return Post{
+		Id:      uuid.New(),
+		PageId:  pageId,
+		Text:    text,
+		Created: time.Now(),
+		Replies: &[]Post{}}
 }
 
 func renderPage(w http.ResponseWriter, page *PagePresentation) {
@@ -87,17 +97,43 @@ func handlePostRequest(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	pageName := m[1]
-	page, _, exists := retrievePageByName(pageName, pages)
+	pageId, failure := uuid.Parse(m[1])
+	if failure != nil {
+		http.NotFound(w, r)
+		return
+	}
+	page, posts, exists := retrievePageById(pageId, pages)
 	if !exists {
 		http.NotFound(w, r)
 		return
 	}
-	post := r.FormValue("post")
-	addPost(pageName, Post{PostId: uuid.New(), Text: post, Created: time.Now()}, pages)
+	text := r.FormValue("text")
+	addPost(createPost(text, page.Id), posts)
 	http.Redirect(w, r, "/page/"+page.Name, http.StatusFound)
 }
 
 func handleReplyRequest(w http.ResponseWriter, r *http.Request) {
-
+	m := replyApiPath.FindStringSubmatch(r.URL.Path)
+	if m == nil {
+		http.NotFound(w, r)
+		return
+	}
+	pageId, failure := uuid.Parse(m[1])
+	if failure != nil {
+		http.NotFound(w, r)
+		return
+	}
+	postId, failure := uuid.Parse(m[2])
+	if failure != nil {
+		http.NotFound(w, r)
+		return
+	}
+	page, posts, exists := retrievePageById(pageId, pages)
+	if !exists {
+		http.NotFound(w, r)
+		return
+	}
+	text := r.FormValue("text")
+	addReply(postId, createPost(text, page.Id), posts)
+	http.Redirect(w, r, "/page/"+page.Name, http.StatusFound)
 }

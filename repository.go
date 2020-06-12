@@ -6,46 +6,65 @@ import (
 	"time"
 )
 
-var pages = map[Page]*[]Post{
-	Page{
-		PageId:  uuid.New(),
-		Name:    "welcome",
-		Url:     url.URL{Scheme: "https", Host: "chatthread.net", Path: "welcome"},
-		Created: time.Now(),
-	}: {
-		{
-			PostId:  uuid.New(),
-			Text:    "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut ",
-			Created: time.Now(),
-		},
-		{
-			PostId:  uuid.New(),
-			Text:    "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt",
-			Created: time.Now(),
-		},
-	},
-	Page{
-		PageId:  uuid.New(),
-		Name:    "hello",
-		Url:     url.URL{Scheme: "https", Host: "chatthread.net", Path: "hello"},
-		Created: time.Now(),
-	}: {},
+var welcomePage = Page{
+	Id:      uuid.New(),
+	Name:    "welcome",
+	Url:     url.URL{Scheme: "https", Host: "chatthread.net", Path: "welcome"},
+	Created: time.Now(),
 }
 
-func retrievePageByName(name string, pages map[Page]*[]Post) (Page, *[]Post, bool) {
+var helloPage = Page{
+	Id:      uuid.New(),
+	Name:    "hello",
+	Url:     url.URL{Scheme: "https", Host: "chatthread.net", Path: "hello"},
+	Created: time.Now(),
+}
+
+var pages = map[Page]*[]Post{
+	welcomePage: {
+		createPost(
+			"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut ",
+			welcomePage.Id,
+		),
+		createPost(
+			"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt",
+			welcomePage.Id,
+		),
+	},
+	helloPage: {},
+}
+
+func retrievePageByName(pageName string, pages map[Page]*[]Post) (Page, *[]Post, bool) {
 	for page, posts := range pages {
-		if name == page.Name {
+		if pageName == page.Name {
 			return page, posts, true
 		}
 	}
 	return Page{}, nil, false
 }
 
-func addPost(name string, post Post, pages map[Page]*[]Post) bool {
-	_, posts, exits := retrievePageByName(name, pages)
-	if !exits {
-		return false
+func retrievePageById(pageId uuid.UUID, pages map[Page]*[]Post) (Page, *[]Post, bool) {
+	for page, posts := range pages {
+		if pageId == page.Id {
+			return page, posts, true
+		}
 	}
+	return Page{}, nil, false
+}
+
+func addPost(post Post, posts *[]Post) bool {
 	*posts = append(*posts, post)
 	return true
+}
+
+func addReply(postId uuid.UUID, reply Post, posts *[]Post) bool {
+	for _, post := range *posts {
+		if post.Id == postId {
+			*post.Replies = append(*post.Replies, reply)
+			return true
+		} else if addReply(postId, reply, post.Replies) {
+			return true
+		}
+	}
+	return false
 }
