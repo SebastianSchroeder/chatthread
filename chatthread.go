@@ -51,6 +51,10 @@ func renderPage(w http.ResponseWriter, page *PagePresentation) {
 var presentationPath = regexp.MustCompile("^/page/([a-zA-Z0-9]+)/?$")
 
 func pagePresentationHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "415 method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 	m := presentationPath.FindStringSubmatch(r.URL.Path)
 	if m == nil {
 		http.NotFound(w, r)
@@ -92,6 +96,10 @@ func handlePageRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlePostRequest(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "415 method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 	m := postApiPath.FindStringSubmatch(r.URL.Path)
 	if m == nil {
 		http.NotFound(w, r)
@@ -113,6 +121,10 @@ func handlePostRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleReplyRequest(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "415 method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 	m := replyApiPath.FindStringSubmatch(r.URL.Path)
 	if m == nil {
 		http.NotFound(w, r)
