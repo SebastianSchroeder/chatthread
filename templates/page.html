@@ -1,18 +1,13 @@
 {{define "posts"}}
-    {{if .}}
+    {{with .}}
         <ul>
             {{ range . }}
-                <li>
+                <li class="ct-post" data-post-id="{{.Id}}">
                     {{.Text}}<br/>
                     Posted on: {{.Created.Format "January 02, 2006 15:04 UTC" }}
-                    <form action="/api/page/{{.PageId}}/posts/{{.Id}}/replies" method="POST">
-                        <div>
-                            <textarea name="text" rows="10" cols="80"></textarea>
-                        </div>
-                        <div>
-                            <input type="submit" value="Save">
-                        </div>
-                    </form>
+                    <a class="ct-reply-action" href="/api/page/{{.PageId}}/posts/{{.Id}}/replies">Reply</a>
+                    <div class="ct-reply-form-wrapper">
+                    </div>
                     {{template "posts" .Replies}}
                 </li>
             {{ end }}
@@ -20,26 +15,42 @@
     {{ end }}
 {{end}}
 
+{{define "post-form"}}
+    <form class="ct-post-form" action="{{.}}" method="POST">
+        <div>
+            <textarea name="text" rows="10" cols="80"></textarea>
+        </div>
+        <div>
+            <input type="submit" value="Submit">
+        </div>
+    </form>
+{{end}}
+
 <html lang="en">
 <head>
     <title>ChatTHREAD</title>
-    <link rel="stylesheet" type="text/css" href="/static/css/chatthread.css" />
+    <link rel="stylesheet" type="text/css" href="/static/css/chatthread.css"/>
 </head>
 <body>
 
-<h1>Page {{.Page.Name}}</h1>
+<div id="ct-main">
 
-<form action="/api/page/{{.Page.Id}}/posts/" method="POST">
-    <div>
-        <textarea name="text" rows="10" cols="80"></textarea>
-    </div>
-    <div>
-        <input type="submit" value="Save">
-    </div>
-</form>
+    <h1>Page {{.Page.Name}}</h1>
 
-{{template "posts" .Posts}}
+    {{template "post-form" printf "/api/page/%s/posts/" .Page.Id}}
+
+    <div id="ct-posts-wrapper" data-page-id="{{.Page.Id}}">
+
+        {{template "posts" .Posts}}
+
+    </div>
+
+</div>
 
 <script src="/static/js/chatthread.js"></script>
+<script id="ct-post-form-template" type="text/template">
+    {{template "post-form"}}
+</script>
+
 </body>
 </html>
