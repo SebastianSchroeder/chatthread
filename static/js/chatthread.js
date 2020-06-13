@@ -1,7 +1,7 @@
 function replyLinkHandler(e) {
     e.preventDefault()
 
-    const post = this.closest(".ct-post") // TODO Polyfill needed
+    const post = this.closest(".ct-post")
     let postFormWrapper
     for (let i = 0; i < post.children.length; i++) {
         const child = post.children[i]
@@ -33,4 +33,24 @@ const replyLinks = document.getElementsByClassName("ct-reply-action")
 for (let i = 0; i < replyLinks.length; i++) {
     const replyLink = replyLinks[i]
     replyLink.addEventListener('click', replyLinkHandler, false)
+}
+
+/**
+ * element.closest polyfill
+ */
+if (!Element.prototype.matches) {
+    Element.prototype.matches = Element.prototype.msMatchesSelector ||
+        Element.prototype.webkitMatchesSelector
+}
+
+if (!Element.prototype.closest) {
+    Element.prototype.closest = function(s) {
+        let el = this
+
+        do {
+            if (Element.prototype.matches.call(el, s)) return el
+            el = el.parentElement || el.parentNode
+        } while (el !== null && el.nodeType === 1)
+        return null
+    }
 }
