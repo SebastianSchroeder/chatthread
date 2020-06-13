@@ -29,7 +29,7 @@
 <html lang="en">
 <head>
     <title>ChatTHREAD</title>
-    <link rel="stylesheet" type="text/css" href="/static/css/chatthread.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/css/chatthread.css?{{.CssHash}}"/>
 </head>
 <body>
 
@@ -47,7 +47,7 @@
 
 </div>
 
-<script src="/static/js/chatthread.js"></script>
+<script src="/static/js/chatthread.js?{{.JsHash}}"></script>
 <script id="ct-post-form-template" type="text/template">
     {{template "post-form"}}
 </script>

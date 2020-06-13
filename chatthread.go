@@ -11,10 +11,14 @@ import (
 )
 
 var templates = template.Must(template.ParseFiles("templates/page.html"))
+var chatthreadJsHash = computeFileHash("static/js/chatthread.js")
+var chatthreadCssHash = computeFileHash("static/css/chatthread.css")
 
 type PagePresentation struct {
-	Page  Page
-	Posts *[]Post
+	Page    Page
+	Posts   *[]Post
+	JsHash  string
+	CssHash string
 }
 
 type Page struct {
@@ -66,7 +70,7 @@ func pagePresentationHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	pagePresentation := PagePresentation{page, posts}
+	pagePresentation := PagePresentation{page, posts, chatthreadJsHash, chatthreadCssHash}
 	renderPage(w, &pagePresentation)
 }
 
