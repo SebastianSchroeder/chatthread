@@ -2,7 +2,7 @@
     {{with .}}
         <ul>
             {{ range . }}
-                <li class="ct-post" data-post-id="{{.Id}}">
+                <li class="ct-post">
                     {{.Text}}<br/>
                     Posted on: {{.Created.Format "January 02, 2006 15:04 UTC" }}
                     <a class="ct-reply-action" href="/api/page/{{.PageId}}/posts/{{.Id}}/replies">Reply</a>
@@ -39,7 +39,7 @@
 
     {{template "post-form" printf "/api/page/%s/posts/" .Page.Id}}
 
-    <div id="ct-posts-wrapper" data-page-id="{{.Page.Id}}">
+    <div id="ct-posts-wrapper">
 
         {{template "posts" .Posts}}
 
