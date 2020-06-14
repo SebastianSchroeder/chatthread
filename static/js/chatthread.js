@@ -1,7 +1,8 @@
 function replyLinkHandler(e) {
     e.preventDefault()
+    const replyLink = e.target
 
-    const post = this.closest(".ct-post")
+    const post = replyLink.closest(".ct-post")
     let postFormWrapper
     for (let i = 0; i < post.children.length; i++) {
         const child = post.children[i]
@@ -12,7 +13,7 @@ function replyLinkHandler(e) {
     }
     if (postFormWrapper.getElementsByTagName("form").length === 0) {
         const postFormTemplate = document.getElementById("ct-post-form-template").innerHTML
-        const actionUrl = this.getAttribute("href")
+        const actionUrl = replyLink.getAttribute("href")
         postFormWrapper.innerHTML = postFormTemplate
         postFormWrapper.getElementsByTagName("form")[0].setAttribute("action", actionUrl)
     } else {
@@ -28,12 +29,17 @@ function toggleVisibility(element) {
     }
 }
 
-const replyLinks = document.getElementsByClassName("ct-reply-action")
+const chatThreadMain = document.getElementById("ct-main");
 
-for (let i = 0; i < replyLinks.length; i++) {
-    const replyLink = replyLinks[i]
-    replyLink.addEventListener('click', replyLinkHandler, false)
-}
+chatThreadMain.addEventListener(
+    'click',
+    function (event) {
+        if (event.target.classList.contains("ct-reply-action")) {
+            replyLinkHandler(event)
+        }
+    },
+    false
+);
 
 /**
  * element.closest polyfill
@@ -44,7 +50,7 @@ if (!Element.prototype.matches) {
 }
 
 if (!Element.prototype.closest) {
-    Element.prototype.closest = function(s) {
+    Element.prototype.closest = function (s) {
         let el = this
 
         do {
