@@ -1,34 +1,3 @@
-function replyLinkHandler(e) {
-    e.preventDefault()
-    const replyLink = e.target
-
-    const post = replyLink.closest(".ct-post")
-    let postFormWrapper
-    for (let i = 0; i < post.children.length; i++) {
-        const child = post.children[i]
-        if (child.classList.contains("ct-reply-form-wrapper")) {
-            postFormWrapper = child
-            break
-        }
-    }
-    if (postFormWrapper.getElementsByTagName("form").length === 0) {
-        const postFormTemplate = document.getElementById("ct-post-form-template").innerHTML
-        const actionUrl = replyLink.getAttribute("href")
-        postFormWrapper.innerHTML = postFormTemplate
-        postFormWrapper.getElementsByTagName("form")[0].setAttribute("action", actionUrl)
-    } else {
-        toggleVisibility(postFormWrapper)
-    }
-}
-
-function toggleVisibility(element) {
-    if (element.style.display === "none") {
-        element.style.display = "block"
-    } else {
-        element.style.display = "none"
-    }
-}
-
 const chatThreadMain = document.getElementById("ct-main");
 
 chatThreadMain.addEventListener(
@@ -40,6 +9,40 @@ chatThreadMain.addEventListener(
     },
     false
 );
+
+function replyLinkHandler(e) {
+    e.preventDefault()
+    const replyLink = e.target
+
+    const post = replyLink.closest(".ct-post")
+    let postFormWrapper = retrieveChildWithClass(post, "ct-reply-form-wrapper");
+    if (postFormWrapper.getElementsByTagName("form").length === 0) {
+        const postFormTemplate = document.getElementById("ct-post-form-template").innerHTML
+        const actionUrl = replyLink.getAttribute("href")
+        postFormWrapper.innerHTML = postFormTemplate
+        postFormWrapper.getElementsByTagName("form")[0].setAttribute("action", actionUrl)
+    } else {
+        toggleVisibility(postFormWrapper)
+    }
+}
+
+function retrieveChildWithClass(element, elementClass) {
+    for (let i = 0; i < element.children.length; i++) {
+        const child = element.children[i]
+        if (child.classList.contains(elementClass)) {
+            return child
+        }
+    }
+    return null
+}
+
+function toggleVisibility(element) {
+    if (element.style.display === "none") {
+        element.style.display = "block"
+    } else {
+        element.style.display = "none"
+    }
+}
 
 /**
  * element.closest polyfill
