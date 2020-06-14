@@ -52,14 +52,14 @@ func renderPage(w http.ResponseWriter, page *PagePresentation) {
 	}
 }
 
-var presentationPath = regexp.MustCompile("^/page/([a-zA-Z0-9]+)/?$")
+var pagesPresentationPath = regexp.MustCompile("^/pages/([a-zA-Z0-9]+)/?$")
 
-func pagePresentationHandler(w http.ResponseWriter, r *http.Request) {
+func pagesPresentationHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "415 method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	m := presentationPath.FindStringSubmatch(r.URL.Path)
+	m := pagesPresentationPath.FindStringSubmatch(r.URL.Path)
 	if m == nil {
 		http.NotFound(w, r)
 		return
@@ -74,37 +74,37 @@ func pagePresentationHandler(w http.ResponseWriter, r *http.Request) {
 	renderPage(w, &pagePresentation)
 }
 
-var pageApiPath = regexp.MustCompile("^/api/page/([a-zA-Z0-9\\-]+)/?$")
-var postApiPath = regexp.MustCompile("^/api/page/([a-zA-Z0-9\\-]+)/posts/?$")
-var replyApiPath = regexp.MustCompile("^/api/page/([a-zA-Z0-9\\-]+)/posts/([a-zA-Z0-9\\-]+)/replies/?$")
+var pagesApiPath = regexp.MustCompile("^/api/pages/([a-zA-Z0-9\\-]+)/?$")
+var postsApiPath = regexp.MustCompile("^/api/pages/([a-zA-Z0-9\\-]+)/posts/?$")
+var repliesApiPath = regexp.MustCompile("^/api/pages/([a-zA-Z0-9\\-]+)/posts/([a-zA-Z0-9\\-]+)/replies/?$")
 
-func pageApiHandler(w http.ResponseWriter, r *http.Request) {
+func pagesApiHandler(w http.ResponseWriter, r *http.Request) {
 	switch {
-	case pageApiPath.MatchString(r.URL.Path):
+	case pagesApiPath.MatchString(r.URL.Path):
 		log.Print("matching page handler")
-		handlePageRequest(w, r)
-	case postApiPath.MatchString(r.URL.Path):
+		handlePagesRequest(w, r)
+	case postsApiPath.MatchString(r.URL.Path):
 		log.Print("matching post handler")
-		handlePostRequest(w, r)
-	case replyApiPath.MatchString(r.URL.Path):
+		handlePostsRequest(w, r)
+	case repliesApiPath.MatchString(r.URL.Path):
 		log.Print("matching reply handler")
-		handleReplyRequest(w, r)
+		handleRepliesRequest(w, r)
 	default:
 		log.Print("path ", r.URL.Path, " does not match")
 		http.NotFound(w, r)
 	}
 }
 
-func handlePageRequest(w http.ResponseWriter, r *http.Request) {
+func handlePagesRequest(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func handlePostRequest(w http.ResponseWriter, r *http.Request) {
+func handlePostsRequest(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "415 method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	m := postApiPath.FindStringSubmatch(r.URL.Path)
+	m := postsApiPath.FindStringSubmatch(r.URL.Path)
 	if m == nil {
 		http.NotFound(w, r)
 		return
@@ -124,12 +124,12 @@ func handlePostRequest(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/page/"+page.Name, http.StatusFound)
 }
 
-func handleReplyRequest(w http.ResponseWriter, r *http.Request) {
+func handleRepliesRequest(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "415 method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	m := replyApiPath.FindStringSubmatch(r.URL.Path)
+	m := repliesApiPath.FindStringSubmatch(r.URL.Path)
 	if m == nil {
 		http.NotFound(w, r)
 		return
