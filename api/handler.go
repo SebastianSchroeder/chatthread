@@ -86,5 +86,23 @@ func handleRepliesRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlePagesRequest(w http.ResponseWriter, r *http.Request) {
-
+	if r.Method != "DELETE" {
+		http.Error(w, "415 method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	m := pagesPath.FindStringSubmatch(r.URL.Path)
+	if m == nil {
+		http.NotFound(w, r)
+		return
+	}
+	pageId, failure := uuid.Parse(m[1])
+	if failure != nil {
+		http.NotFound(w, r)
+		return
+	}
+	deleted := repository.DeletePageById(pageId)
+	if !deleted {
+		http.NotFound(w, r)
+		return
+	}
 }

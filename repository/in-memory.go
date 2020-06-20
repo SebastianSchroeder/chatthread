@@ -53,6 +53,16 @@ func RetrievePageById(pageId uuid.UUID) (domain.Page, *[]domain.Post, bool) {
 	return domain.Page{}, nil, false
 }
 
+func DeletePageById(pageId uuid.UUID) bool {
+	for page := range pagesToPosts {
+		if pageId == page.Id {
+			delete(pagesToPosts, page)
+			return true
+		}
+	}
+	return false
+}
+
 func ListPages() []domain.Page {
 	i := 0
 	pages := make([]domain.Page, len(pagesToPosts))
