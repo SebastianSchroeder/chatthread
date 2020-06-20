@@ -3,7 +3,9 @@ package api
 import (
 	"chatthread.net/app/main/domain"
 	"chatthread.net/app/main/repository"
+	"encoding/json"
 	"github.com/google/uuid"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -24,20 +26,32 @@ func handlePagesRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type createPage struct {
+	Name string
+	Url  string
+}
+
 func handlePostPageRequest(w http.ResponseWriter, r *http.Request) {
 	m := pagesPath.FindStringSubmatch(r.URL.Path)
 	if m == nil {
 		http.NotFound(w, r)
 		return
 	}
-	name := r.FormValue("name")
-	rawUrl := r.FormValue("url")
-	parsedUrl, err := url.Parse(rawUrl)
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	pageToCreate := createPage{}
+	err = json.Unmarshal(body, &pageToCreate)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	parsedUrl, err := url.Parse(pageToCreate.Url)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	page := domain.CreatePage(name, *parsedUrl)
+	page := domain.CreatePage(pageToCreate.Name, *parsedUrl)
 	repository.AddPage(page)
 }
 
