@@ -7,7 +7,6 @@ import (
 
 var templates = template.Must(template.ParseFiles(
 	"templates/admin/pages.html",
-	"templates/admin/page.html",
 ))
 
 func RenderPage(w http.ResponseWriter, template string, data interface{}) {
