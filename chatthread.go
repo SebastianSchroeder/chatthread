@@ -121,7 +121,7 @@ func handlePostsRequest(w http.ResponseWriter, r *http.Request) {
 	}
 	text := r.FormValue("text")
 	addPost(createPost(text, page.Id), posts)
-	http.Redirect(w, r, "/page/"+page.Name, http.StatusFound)
+	http.Redirect(w, r, "/pages/"+page.Name, http.StatusFound)
 }
 
 func handleRepliesRequest(w http.ResponseWriter, r *http.Request) {
@@ -151,5 +151,5 @@ func handleRepliesRequest(w http.ResponseWriter, r *http.Request) {
 	}
 	text := r.FormValue("text")
 	addReply(postId, createPost(text, page.Id), posts)
-	http.Redirect(w, r, "/page/"+page.Name, http.StatusFound)
+	http.Redirect(w, r, "/pages/"+page.Name, http.StatusFound)
 }
