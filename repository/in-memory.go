@@ -1,32 +1,33 @@
-package main
+package repository
 
 import (
+	"chatthread.net/app/main/domain"
 	"github.com/google/uuid"
 	"net/url"
 	"time"
 )
 
-var welcomePage = Page{
+var welcomePage = domain.Page{
 	Id:      uuid.New(),
 	Name:    "welcome",
 	Url:     url.URL{Scheme: "https", Host: "chatthread.net", Path: "welcome"},
 	Created: time.Now(),
 }
 
-var helloPage = Page{
+var helloPage = domain.Page{
 	Id:      uuid.New(),
 	Name:    "hello",
 	Url:     url.URL{Scheme: "https", Host: "chatthread.net", Path: "hello"},
 	Created: time.Now(),
 }
 
-var pagesToPosts = map[Page]*[]Post{
+var pagesToPosts = map[domain.Page]*[]domain.Post{
 	welcomePage: {
-		createPost(
+		domain.CreatePost(
 			"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut ",
 			welcomePage.Id,
 		),
-		createPost(
+		domain.CreatePost(
 			"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt",
 			welcomePage.Id,
 		),
@@ -34,35 +35,45 @@ var pagesToPosts = map[Page]*[]Post{
 	helloPage: {},
 }
 
-func retrievePageByName(pageName string, pages map[Page]*[]Post) (Page, *[]Post, bool) {
-	for page, posts := range pages {
+func RetrievePageByName(pageName string) (domain.Page, *[]domain.Post, bool) {
+	for page, posts := range pagesToPosts {
 		if pageName == page.Name {
 			return page, posts, true
 		}
 	}
-	return Page{}, nil, false
+	return domain.Page{}, nil, false
 }
 
-func retrievePageById(pageId uuid.UUID, pages map[Page]*[]Post) (Page, *[]Post, bool) {
-	for page, posts := range pages {
+func RetrievePageById(pageId uuid.UUID) (domain.Page, *[]domain.Post, bool) {
+	for page, posts := range pagesToPosts {
 		if pageId == page.Id {
 			return page, posts, true
 		}
 	}
-	return Page{}, nil, false
+	return domain.Page{}, nil, false
 }
 
-func addPost(post Post, posts *[]Post) bool {
+func ListPages() []domain.Page {
+	i := 0
+	pages := make([]domain.Page, len(pagesToPosts))
+	for k := range pagesToPosts {
+		pages[i] = k
+		i++
+	}
+	return pages
+}
+
+func AddPost(post domain.Post, posts *[]domain.Post) bool {
 	*posts = append(*posts, post)
 	return true
 }
 
-func addReply(postId uuid.UUID, reply Post, posts *[]Post) bool {
+func AddReply(postId uuid.UUID, reply domain.Post, posts *[]domain.Post) bool {
 	for _, post := range *posts {
 		if post.Id == postId {
 			*post.Replies = append(*post.Replies, reply)
 			return true
-		} else if addReply(postId, reply, post.Replies) {
+		} else if AddReply(postId, reply, post.Replies) {
 			return true
 		}
 	}

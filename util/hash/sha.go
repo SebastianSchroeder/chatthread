@@ -1,4 +1,4 @@
-package main
+package hash
 
 import (
 	"crypto/sha256"
@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func computeFileHash(path string) string {
+func ComputeFileHash(path string) string {
 	f, err := os.Open(path)
 	if err != nil {
 		panic("Could not open file " + path + " to compute hash. error: " + err.Error())
