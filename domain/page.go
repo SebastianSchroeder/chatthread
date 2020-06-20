@@ -12,3 +12,12 @@ type Page struct {
 	Url     url.URL
 	Created time.Time
 }
+
+func CreatePage(name string, url url.URL) Page {
+	return Page{
+		Id:      uuid.New(),
+		Name:    name,
+		Url:     url,
+		Created: time.Now(),
+	}
+}

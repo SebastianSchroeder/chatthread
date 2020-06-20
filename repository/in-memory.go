@@ -63,6 +63,11 @@ func DeletePageById(pageId uuid.UUID) bool {
 	return false
 }
 
+func AddPage(page domain.Page) {
+	posts := make([]domain.Post, 5)
+	pagesToPosts[page] = &posts
+}
+
 func ListPages() []domain.Page {
 	i := 0
 	pages := make([]domain.Page, len(pagesToPosts))
