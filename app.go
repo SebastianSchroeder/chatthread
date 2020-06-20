@@ -11,5 +11,6 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", gzipCompression(fs)))
 	http.HandleFunc("/pages/", pagesPresentationHandler)
 	http.HandleFunc("/api/pages/", pagesApiHandler)
+	http.HandleFunc("/admin/pages/", adminPagesPresentationHandler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

@@ -20,7 +20,7 @@ var helloPage = Page{
 	Created: time.Now(),
 }
 
-var pages = map[Page]*[]Post{
+var pagesToPosts = map[Page]*[]Post{
 	welcomePage: {
 		createPost(
 			"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut ",

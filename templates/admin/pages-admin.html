@@ -1,0 +1,38 @@
+<html lang="en">
+<head>
+    <title>ChatTHREAD Admin - Pages</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/chatthread.css?{{.CssHash}}"/>
+</head>
+<body>
+
+<div id="ct-admin-main">
+
+    <h1>Pages</h1>
+
+    <div id="ct-admin-pages-wrapper">
+
+        <table>
+            <tr>
+                <td>Name</td>
+                <td>Created</td>
+                <td></td>
+                <td></td>
+            </tr>
+            {{ range .Pages }}
+                <tr class="ct-admin-page">
+                    <td><a href="{{.Url.String}}">{{.Name}}</a></td>
+                    <td>{{.Created.Format "02-Jan-2006 15:04 UTC" }}</td>
+                    <td><a href="/api/pages/{{.Id}}">Edit</a></td>
+                    <td><a class="ct-admin-page-delete-action" href="/api/pages/{{.Id}}">Delete</a></td>
+                </tr>
+            {{ end }}
+        </table>
+
+    </div>
+
+</div>
+
+<script src="/static/js/chatthread-admin.js?{{.JsHash}}"></script>
+
+</body>
+</html>
