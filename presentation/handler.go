@@ -17,10 +17,15 @@ type PagePresentation struct {
 var pagesPath = regexp.MustCompile("^/pages/([a-zA-Z0-9]+)/?$")
 
 func PagesHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	switch r.Method {
+	case "GET":
+		handleGetPageRequest(w, r)
+	default:
 		http.Error(w, "415 method not allowed", http.StatusMethodNotAllowed)
-		return
 	}
+}
+
+func handleGetPageRequest(w http.ResponseWriter, r *http.Request) {
 	m := pagesPath.FindStringSubmatch(r.URL.Path)
 	if m == nil {
 		http.NotFound(w, r)

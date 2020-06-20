@@ -16,10 +16,15 @@ type AdminPagesPresentation struct {
 var adminPagesPresentationPath = regexp.MustCompile("^/admin/pages/?$")
 
 func PagesHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	switch r.Method {
+	case "GET":
+		handleGetPagesRequest(w, r)
+	default:
 		http.Error(w, "415 method not allowed", http.StatusMethodNotAllowed)
-		return
 	}
+}
+
+func handleGetPagesRequest(w http.ResponseWriter, r *http.Request) {
 	if !adminPagesPresentationPath.MatchString(r.URL.Path) {
 		http.NotFound(w, r)
 		return
